@@ -61,11 +61,25 @@ export const LinkMutation = extendType({
         description: nonNull(stringArg()),
         url: nonNull(stringArg()),
       },
-      resolve: (_, { id, description, url }, context) => 
-        context.prisma.link.update({
+      resolve: async (_, { id, description, url }, context) => {
+        const userId = context.userId
+        const link = await context.prisma.link.findUnique({ where: { id } })
+
+        if (!userId) {
+          throw new Error("Cannot update link without logged in.")
+        }
+        if (!link) {
+          throw new Error("Link not found.")
+        }
+        if (link.postedById !== userId) {
+          throw new Error("You can only update links that you have post yourself.")
+        }
+
+        return context.prisma.link.update({
           where: { id },
           data: { description, url },
         })
+      }
     })
 
     t.field("deleteLink", {
@@ -73,10 +87,24 @@ export const LinkMutation = extendType({
       args: {
         id: nonNull(intArg()),
       },
-      resolve: (_, { id }, context) =>
-        context.prisma.link.delete({
+      resolve: async (_, { id }, context) => {
+        const userId = context.userId
+        const link = await context.prisma.link.findUnique({ where: { id } })
+
+        if (!userId) {
+          throw new Error("Cannot update link without logged in.")
+        }
+        if (!link) {
+          throw new Error("Link not found.")
+        }
+        if (link.postedById !== userId) {
+          throw new Error("You can only delete links that you have post yourself.")
+        }
+
+        return context.prisma.link.delete({
           where: { id }
         })
+      }
     })
   },
 })
