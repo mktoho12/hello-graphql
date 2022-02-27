@@ -6,6 +6,11 @@ export const Link = objectType({
     t.nonNull.int("id")
     t.nonNull.string("description")
     t.nonNull.string("url")
+    t.field("postedBy", {
+      type: "User",
+      resolve: (source, _, context) =>
+        context.prisma.link.findUnique({ where: { id: source.id }}).postedBy()
+    })
   }
 })
 
@@ -22,7 +27,8 @@ export const LinkQuery = extendType({
       args: {
         id: nonNull(intArg()),
       },
-      resolve: (_, { id }, context) => context.prisma.link.findUnique({ where: { id } })
+      resolve: (_, { id }, context) =>
+        context.prisma.link.findUnique({ where: { id } })
     })
   }
 })
@@ -36,10 +42,16 @@ export const LinkMutation = extendType({
         description: nonNull(stringArg()),
         url: nonNull(stringArg()),
       },
-      resolve: (_, { description, url }, context) =>
-        context.prisma.link.create({
-          data: { description, url }
-        }),
+      resolve: (_, { description, url }, context) => {
+        const userId = context.userId
+        if (!userId) {
+          throw new Error("Cannot post without logged in.")
+        }
+
+        return context.prisma.link.create({
+          data: { description, url, postedBy: { connect: { id: userId } } }
+        })
+      },
     })
 
     t.field("updateLink", {

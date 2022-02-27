@@ -1,16 +1,15 @@
 import { PrismaClient } from "@prisma/client";
+import * as jwt from "jsonwebtoken"
+import { APP_SECRET } from "./utils/auth";
 
 const prisma = new PrismaClient()
 
 async function main() {
-  const newLink = await prisma.link.create({
-    data: {
-      url: "https://toho-vote.info/",
-      description: "東方人気投票",
-    }
-  })
-  const allLinks = await prisma.link.findMany()
-  console.log(allLinks)
+  console.log(APP_SECRET)
+  const token = jwt.sign({ userId: 1 }, APP_SECRET)
+  console.log(token)
+  const a = jwt.verify(token, APP_SECRET)
+  console.log(a)
 }
 
 main()
