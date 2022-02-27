@@ -1,10 +1,24 @@
-import { ApolloServer } from "apollo-server";
-import { context } from "./context";
+import { ApolloServer } from "apollo-server"
+import {
+  ApolloServerPluginLandingPageLocalDefault,
+  ApolloServerPluginLandingPageProductionDefault
+} from "apollo-server-core"
 
-import { schema } from "./schema";
+import { context } from "./context"
+import { schema } from "./schema"
+
 export const server = new ApolloServer({
   schema,
   context,
+  plugins: [
+    process.env.NODE_ENV === 'production'
+      ? ApolloServerPluginLandingPageProductionDefault({
+          graphRef: "hello-graphql01@current",
+          footer: false,
+        })
+      : ApolloServerPluginLandingPageLocalDefault({ footer: false }),
+  ],
+
 })
 
 const port = process.env.PORT || 3000
