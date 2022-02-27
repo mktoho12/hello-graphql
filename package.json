@@ -23,6 +23,7 @@
     "nexus": "^1.2.0"
   },
   "devDependencies": {
+    "@apollo/rover": "^0.4.3",
     "@types/bcrypt": "^5.0.0",
     "@types/jsonwebtoken": "^8.5.8",
     "graphql": "^15.8.0",
