@@ -7,6 +7,21 @@ import {
 import { context } from "./context"
 import { schema } from "./schema"
 
+const document = `
+query Query {
+  feed {
+    id
+    url
+    description
+    postedBy {
+      id
+      name
+      email
+    }
+  }
+}
+`.trim()
+
 export const server = new ApolloServer({
   schema,
   context,
@@ -14,20 +29,7 @@ export const server = new ApolloServer({
     process.env.NODE_ENV === 'production'
       ? ApolloServerPluginLandingPageProductionDefault({
           graphRef: "hello-graphql01@current",
-          document: `
-          query Query {
-            feed {
-              id
-              url
-              description
-              postedBy {
-                id
-                name
-                email
-              }
-            }
-          }
-          `,
+          document,
           footer: false,
         })
       : ApolloServerPluginLandingPageLocalDefault({ footer: false }),
